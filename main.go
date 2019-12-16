@@ -66,45 +66,45 @@ func main() {
 
     // https://github.com/iovisor/gobpf/blob/master/bcc/module.go#L176
     // LoadKprobe(name string) loads a program of type BPF_PROG_TYPE_KPROBE.
-    kprobe1, err := m.LoadKprobe("trace_connect_v4_entry")
+    kprobe, err := m.LoadKprobe("trace_connect_v4_entry")
     if err != nil {
         fmt.Fprintf(os.Stderr, "Failed to load trace_connect_v4_entry: %s\n", err)
         os.Exit(1)
     }
     // https://github.com/iovisor/gobpf/blob/master/bcc/module.go#L273
     // AttachKprobe(fnName string, fd int, maxActive int) attaches a kprobe fd to a function.
-    m.AttachKprobe("tcp_v4_connect", kprobe1, 0)
+    m.AttachKprobe("tcp_v4_connect", kprobe, 0)
 
-    kprobe2, err := m.LoadKprobe("trace_connect_v4_return")
+    kprobe, err = m.LoadKprobe("trace_connect_v4_return")
     if err != nil {
         fmt.Fprintf(os.Stderr, "Failed to load trace_connect_v4_return: %s\n", err)
         os.Exit(1)
     }
-    m.AttachKretprobe("tcp_v4_connect", kprobe2, 0)
+    m.AttachKretprobe("tcp_v4_connect", kprobe, 0)
 
-    // TCP Connect (need kprobe1+kprobe2+kprobe3)
-    kprobe3, err := m.LoadKprobe("trace_tcp_set_state_entry")
+    kprobe, err = m.LoadKprobe("trace_tcp_set_state_entry")
     if err != nil {
         fmt.Fprintf(os.Stderr, "Failed to load trace_tcp_set_state_entry: %s\n", err)
         os.Exit(1)
     }
-    m.AttachKprobe("tcp_set_state", kprobe3, 0)
+    m.AttachKprobe("tcp_set_state", kprobe, 0)
+    // TCP Connect (need above 3 attach probe)
 
     // TCP Close
-    kprobe4, err := m.LoadKprobe("trace_close_entry")
+    kprobe, err = m.LoadKprobe("trace_close_entry")
     if err != nil {
         fmt.Fprintf(os.Stderr, "Failed to load trace_close_entry: %s\n", err)
         os.Exit(1)
     }
-    m.AttachKprobe("tcp_close", kprobe4, 0)
+    m.AttachKprobe("tcp_close", kprobe, 0)
 
     // TCP Accept
-    kprobe5, err := m.LoadKprobe("trace_accept_return")
+    kprobe, err = m.LoadKprobe("trace_accept_return")
     if err != nil {
         fmt.Fprintf(os.Stderr, "Failed to load trace_close_entry: %s\n", err)
         os.Exit(1)
     }
-    m.AttachKretprobe("inet_csk_accept", kprobe5, 0)
+    m.AttachKretprobe("inet_csk_accept", kprobe, 0)
 
     // https://github.com/iovisor/gobpf/blob/master/bcc/table.go#L42
     // NewTable(id C.size_t, module *Module) returns a refernce to a BPF table.
